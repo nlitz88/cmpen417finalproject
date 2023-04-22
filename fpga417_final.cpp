@@ -68,6 +68,8 @@ void fir(int input_r, int input_i, int filter_r[FILTER_LENGTH], int filter_i[FIL
 // of the results and one contains the imaginary.
 void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int kernel_img[KERNEL_SIZE], hls::stream<int>&output_real, hls::stream<int>&output_img, int length) {
 
+	// Need to define interface for each port.
+
 	// No need to store the kernel values locally, as they are already instantiated as a block ram on the FPGA within the fpga417_fir module.
 	// Additionally, going to experiment with not yet storing the input values locally. Not sure if that's a better or worse
 	// idea.
@@ -93,6 +95,8 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 
 // Prototype for CORDIC rotator used to convert cartesian outputs of top_fir to polar form.
 void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img, float* output_mag, float* output_angle, int length) {
+
+	// Need to define interfaces for each input.
 	return;
 }
 
