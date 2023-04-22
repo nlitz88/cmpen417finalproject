@@ -1,12 +1,14 @@
+#include <ap_fixed.h>
+#include <ap_int.h>
+#include <hls_math.h>
+#include <hls_stream.h>
 
-#define DATA_LENGTH 25
-#define FILTER_LENGTH 25
+#define KERNEL_SIZE 25
 
-// Complex multiplication prototype.
-void cmplx(int ar, int ai, int br, int bi, int* or, int* oi);
+// Prototype for hardware FIR filter. Performs a complex convolution and produces cartesian outputs.
+void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int kernel_img[KERNEL_SIZE], hls::stream<int>&output_real, hls::stream<int>&output_img, int length);
 
-// FIR function prototype.
-void fir(int input_r, int input_i, int* output_r, int filter_r[FILTER_LENGTH], int filter_i[FILTER_LENGTH], int* output_i);
+// Prototype for CORDIC rotator used to convert cartesian outputs of top_fir to polar form.
 
-// Prototype for hardware accelerated FIR filter created with HLS.
-void fpga417_fir(int* input, int* filter);
+// Prototype for overarching hardware FIR filter that takes in complex inputs and produces convolution
+// result values in polar form. Does this by connecting top_fir and top_cordic_rotator.

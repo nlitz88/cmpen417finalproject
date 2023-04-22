@@ -58,14 +58,16 @@ void fir(int input_r, int input_i, int filter_r[FILTER_LENGTH], int filter_i[FIL
 	}
 
 	// Finally, write the computed dot product (this single step of the overall convolution) to the output.
-
 	*output_r = dot_product_r;
 	*output_i = dot_product_i;
 
 	return;
 }
 
-void fpga417_fir(int* input, int* filter) {
+// "Top" function that takes in array of complex inputs and produces the convolution of those complex inputs
+// with an internally defined filter. Result is returned as two parallel arrays; one contains the real values
+// of the results and one contains the imaginary.
+void fpga417_fir(int input_r[DATA_LENGTH], int input_i[DATA_LENGTH], int output_r[DATA_LENGTH], int output_i[DATA_LENGTH]) {
 
 #pragma HLS INTERFACE s_axilite port=return
 #pragma HLS INTERFACE m_axi port=input offset=slave // bundle=gmem0
