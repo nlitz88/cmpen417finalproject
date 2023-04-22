@@ -9,6 +9,8 @@
 void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int kernel_img[KERNEL_SIZE], hls::stream<int>&output_real, hls::stream<int>&output_img, int length);
 
 // Prototype for CORDIC rotator used to convert cartesian outputs of top_fir to polar form.
+void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img, float* output_mag, float* output_angle, int length);
 
 // Prototype for overarching hardware FIR filter that takes in complex inputs and produces convolution
 // result values in polar form. Does this by connecting top_fir and top_cordic_rotator.
+void fpga417_fir(int* input_real, int* input_img, int* kernel_real, int* kernel_img, float* output_mag, float* output_angle, int input_length);
