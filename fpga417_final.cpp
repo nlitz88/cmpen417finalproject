@@ -8,6 +8,9 @@ void complex_mult(int ar, int ai, int br, int bi, int* o_r, int* o_i) {
 	// Is there anything special we have to do to enable this?
 	*o_r = ar*br - ai*bi;
 	*o_i = ar*bi + ai*br;
+	// Also have to take into account the width of the operands we're doing the multiplication with.
+	// I.e., multipliers only have so much width, so with a 32 bit integer, would have to split up a
+	// single multiplication into two multiplier DSPs.
 	return;
 }
 
@@ -86,8 +89,9 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 	for (i = 0; i < length; i++) {
 		// Pass the ith input value into the fir filter (really just taking the dot product).
 		fir(input_real[i], input_img[i], kernel_real, kernel_img, &iteration_r_result, &iteration_i_result);
-		output_real[i] = iteration_r_result;
-		output_img[i] = iteration_i_result;
+		// Use the blocking stream api function "write" to push each value to its respective stream.
+		output_real.write(iteration_r_result);
+		output_img.write(iteration_i_result);
 	}
 
 	return;
