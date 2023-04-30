@@ -101,15 +101,16 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 void cordic(int cos, int sin, float *output_mag, float *output_angle) {
 
 	// Initialization.
-	FIXED_POINT current_cos = cos;
-	FIXED_POINT current_sin = sin;
+	FIXED_POINT current_cos = (FIXED_POINT)cos;
+	FIXED_POINT current_sin = (FIXED_POINT)sin;
 	FIXED_POINT theta_rotated = 0.0;
 	// Some constants for the initial angle offset.
 	FIXED_POINT ninety = 1.5708;
 	FIXED_POINT half_circle = 3.14159;
 	FIXED_POINT three_quart = 4.71239;
 	FIXED_POINT cricle = 6.28319;
-	FIXED_POINT angle_offset = 0;
+	FIXED_POINT angle_offset = 0; // NOTE: I think we can get rid of this variable and just add the offset to the theta_directly
+	// at the beginning--as we're just going to add it to the end anyways!
 
 	// Logic here to convert the coordinates based on what quadrant they fall in.
 
@@ -134,31 +135,53 @@ void cordic(int cos, int sin, float *output_mag, float *output_angle) {
 	}
 
 	// Now, this is where we'll iterate through and perform the rotation.
-	for (int j = 0; j < NUM_ITERATIONS; j++) {
+	for (int j = 0; j < NUM_CORDIC_ITERATIONS; j++) {
 	      // Multiply previous iteration by 2^(-j).  This is equivalent to
 	      // a right shift by j on a fixed-point number.
 	      FIXED_POINT cos_shift = current_cos >> j;
 	      FIXED_POINT sin_shift = current_sin >> j;
 
-	    // Determine if we are rotating by a positive or negative angle
+
+	    // FOR THE FIRST QUADRANT:
+	    // A positive rotation (counter-clockwise) corresponds with the cosine (x) value decreasing and the sine (y) value increasing.
+
+	    // Our goal: rotate the vector to get it as close to 0 degrees as possible (meaning a sin value as close to zero as possible).
+
+	    // If the current y-value is above the x axis, then rotate CLOCKWISE to get closer to the x-axis
 	    if(current_sin >= 0) {
-	        // Perform the rotation
-	        current_cos = current_cos - sin_shift;
-	        current_sin = current_sin + cos_shift;
 
-	        // Subtract the rotated angle from the theta_rotated.
-	        theta_rotated = theta_rotatoed - cordic_phase[j];
-
-	    }
-	    else {
-	        // Perform the rotation
+	    	// Clockwise rotation == increase in cosine (x) value, decrease in sine (y) value.
 	        current_cos = current_cos + sin_shift;
 	        current_sin = current_sin - cos_shift;
 
-	        // Add the rotated angle from the theta_rotated.
-	        theta_rotated = theta_rotatoed + cordic_phase[j];
+	        // For this rotation, should it be added or subtracted from the rotated theta?
+
+	        // So, for the rotated theta, this is tracking the number of radians we've rotated FROM our original coordinates--right?
+	        // Therefore, if our coordinates start somewhere in the first quadrant, and we rotate clockwise, then shouldn't that rotation
+	        // be counted as "positive" degrees towards our rotation? Right?
+
+	        // Because, ultimately, the angle the coordinates are at are how many degrees/radians we rotate from the point BACK to the
+	        // x-axis! Therefore,
+	        theta_rotated = theta_rotated + cordic_phase[j];
+
+	    }
+	    else {
+	        // Counter-clockwise rotation == decrease in cosine (x) value, decrease in sine (y) value.
+	        current_cos = current_cos - sin_shift;
+	        current_sin = current_sin + cos_shift;
+
+	        // Though the rotation itself is counter-clockwise (which is positive), this rotation would decrease the number of degrees
+	        // we've rotated FROM the coordinates to the x-axis--therefore we subtract the rotation angle here.
+	        theta_rotated = theta_rotatoed - cordic_phase[j];
 	    }
 	}
+
+	// Now that we've performed the NUM_CORDIC_ITERATIONS rotations, we can come up with our final values.
+
+	// Shouldn't have to do anything to the theta_rotated, as the offset would have already been contributed from the start.
+
+	// Now, the magnitude is just going to be equal to the
+
 
 }
 
