@@ -109,6 +109,10 @@ void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img,
 // result values in polar form. Does this by connecting top_fir and top_cordic_rotator.
 void fpga417_fir(int* input_real, int* input_img, int* kernel_real, int* kernel_img, float* output_mag, float* output_angle, int input_length) {
 
+//#pragma HLS INTERFACE s_axilite port=return
+//#pragma HLS INTERFACE m_axi port=input offset=slave // bundle=gmem0
+//#pragma HLS INTERFACE m_axi port=filter offset=slave // bundle=gmem1...
+
 #pragma HLS DATAFLOW
 
 	// Load the kernel values onto FPGA.
@@ -131,40 +135,4 @@ void fpga417_fir(int* input_real, int* input_img, int* kernel_real, int* kernel_
 
 
 	return;
-}
-
-
-void fpga417_fir(int input_r[DATA_LENGTH], int input_i[DATA_LENGTH], int output_r[DATA_LENGTH], int output_i[DATA_LENGTH]) {
-
-#pragma HLS INTERFACE s_axilite port=return
-#pragma HLS INTERFACE m_axi port=input offset=slave // bundle=gmem0
-#pragma HLS INTERFACE m_axi port=filter offset=slave // bundle=gmem1...
-
-	// We don't specify depth--maybe we need that?
-	// We also don't specify a bundle for any of our interfaces--this is because we actually don't
-	// want multiple interfaces to be bundled/connected together to the same AXI interconnect.
-	// By default, they seem to be put in separate bundles.
-
-
-	int temp;
-	int i;
-
-	// Load in filter coefficients. Because filter_coeff is automatically allocated,
-	// I think this'll correspond to allocating block RAM on the FPGA. Therefore, want to load
-	// the data from DRAM to BRAM before performing convolution, so as to not perform a data read
-	// every call to fir.
-	for (i = 0; i < FILTER_LENGTH; i++) {
-		filter_coeff[i] = filter[i];
-	}
-
-	// Perform (partial) convolution with input data and filter coefficients. Write the output of each
-	// convolution step (dot product) to the input that was just fed in to produce that next output!
-	// This means we're not computing a complete convolution--so it's not technically completely correct.
-	// But we're more so interested in doing this just for demonstration.
-	for (i = 0; i < DATA_LENGTH; i++) {
-		// Pass the ith input value into the fir filter (really just taking the dot product).
-		fir(input[i], filter_coeff, &temp);
-		input[i] = temp;
-	}
-
 }
