@@ -97,7 +97,7 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 	return;
 }
 
-// Function to perform each CORDIC rotation.
+// Function to perform each CORDIC rotation (conversion from cartesian to polar).
 void cordic(int cos, int sin, float *output_mag, float *output_angle) {
 
 	// Initialization.
@@ -167,6 +167,17 @@ void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img,
 
 	// Need to define interfaces for each input.
 
+	// 1. Need to lookup how to work with the hls::stream type--does it truly behave like a queue, and we'll block until there're values to pull out,
+	// or do we treat it like it's just an array?
+
+	// Ultimately, the underlying implementation should create task-level parallelism--meaning that the as soon as the FIR filter outputs a number
+	// to the output streams, the cordic rotator can pick up that number and convert it to polar form.
+
+	// 2. Also, another question: The output of this "top_cordic_rotator" is an array of floats, I guess? (one for magnitude, one for angle).
+	// Having said that, I imagine that array of floats would need to be defined outside of the cordic rotator? AND, by the looks of it,
+	// (based on the prototype anyways), it looks like that array would get defined in the processing system's memory, and then accessed
+	// by our IP block via DMA--as it looks like our top function "fpga417_fir" receives an address from an AXI bus--and then communicates over that
+	// AXI bus to the DMA controller, which accesses the memory hierarchy on our fpga's behalf.
 
 
 	return;

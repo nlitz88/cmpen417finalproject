@@ -1,0 +1,9 @@
+# Ignore everything
+*
+# Except for these files
+!.gitignore
+!fpga417_final.cpp
+!fpga417_final.h
+!fpga417_final_test.cpp
+!README.md
+!*/cordic_example
