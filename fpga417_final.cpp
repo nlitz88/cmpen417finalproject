@@ -97,10 +97,78 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 	return;
 }
 
+// Function to perform each CORDIC rotation.
+void cordic(int cos, int sin, float *output_mag, float *output_angle) {
+
+	// Initialization.
+	FIXED_POINT current_cos = cos;
+	FIXED_POINT current_sin = sin;
+	FIXED_POINT theta_rotated = 0.0;
+	// Some constants for the initial angle offset.
+	FIXED_POINT ninety = 1.5708;
+	FIXED_POINT half_circle = 3.14159;
+	FIXED_POINT three_quart = 4.71239;
+	FIXED_POINT cricle = 6.28319;
+	FIXED_POINT angle_offset = 0;
+
+	// Logic here to convert the coordinates based on what quadrant they fall in.
+
+	// If the provided coordinates fall in the second quadrant.
+	if (current_cos < 0 && current_sin > 0) {
+		angle_offset = ninety;
+		current_cos = -current_cos;
+	}
+	// If the provided coordinates fall in the third quadrant.
+	else if (current_cos < 0 && current_sin < 0) {
+		angle_offset = half_circle;
+		current_cos = -current_cos;
+		current_sin = -current_sin;
+	}
+	// If the provided coordinates fall in the fourth quadrant.
+	else if (current_cos > 0 && current_sin < 0) {
+		angle_offset = three_quart;
+		current_sin = -current_sin;
+	}
+	else {
+		angle_offset = 0;
+	}
+
+	// Now, this is where we'll iterate through and perform the rotation.
+	for (int j = 0; j < NUM_ITERATIONS; j++) {
+	      // Multiply previous iteration by 2^(-j).  This is equivalent to
+	      // a right shift by j on a fixed-point number.
+	      FIXED_POINT cos_shift = current_cos >> j;
+	      FIXED_POINT sin_shift = current_sin >> j;
+
+	    // Determine if we are rotating by a positive or negative angle
+	    if(current_sin >= 0) {
+	        // Perform the rotation
+	        current_cos = current_cos - sin_shift;
+	        current_sin = current_sin + cos_shift;
+
+	        // Subtract the rotated angle from the theta_rotated.
+	        theta_rotated = theta_rotatoed - cordic_phase[j];
+
+	    }
+	    else {
+	        // Perform the rotation
+	        current_cos = current_cos + sin_shift;
+	        current_sin = current_sin - cos_shift;
+
+	        // Add the rotated angle from the theta_rotated.
+	        theta_rotated = theta_rotatoed + cordic_phase[j];
+	    }
+	}
+
+}
+
 // Prototype for CORDIC rotator used to convert cartesian outputs of top_fir to polar form.
 void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img, float* output_mag, float* output_angle, int length) {
 
 	// Need to define interfaces for each input.
+
+
+
 	return;
 }
 
