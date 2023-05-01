@@ -223,12 +223,14 @@ void fpga417_fir(int* input_real, int* input_img, int* kernel_real, int* kernel_
 #pragma HLS INTERFACE port=return mode=s_axilite
 	// Use m_axi for all array address arguments, as we want to access these arrays in the processing system's
 	// memory via a DMA controller connected to an AXI full bus.
-#pragma HLS INTERFACE port=input_real mode=m_axi
-#pragma HLS INTERFACE port=input_img mode=m_axi
-#pragma HLS INTERFACE port=kernel_real mode=m_axi
-#pragma HLS INTERFACE port=kernel_img mode=m_axi
-#pragma HLS INTERFACE port=output_mag mode=m_axi
-#pragma HLS INTERFACE port=output_angle mode=m_axi
+#pragma HLS INTERFACE port=input_real mode=m_axi bundle=BUS_A
+#pragma HLS INTERFACE port=input_img mode=m_axi bundle=BUS_A
+#pragma HLS INTERFACE port=output_mag mode=m_axi bundle=BUS_A
+#pragma HLS INTERFACE port=output_angle mode=m_axi bundle=BUS_A
+	// Module can't read both the kernel coefficients and inputs from the same AXI bus--so we place the
+	// kernel ports on a separate AXI bus/interface.
+#pragma HLS INTERFACE port=kernel_real mode=m_axi bundle=BUS_B
+#pragma HLS INTERFACE port=kernel_img mode=m_axi bundle=BUS_B
 	// Use s_axilite for scalar value argument, as it can be accessed as a single register value.
 #pragma HLS INTERFACE port=input_length mode=s_axilite
 
