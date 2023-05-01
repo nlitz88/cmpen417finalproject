@@ -2,8 +2,34 @@
 #include <stdlib.h>
 #include "fpga417_final.h"
 
+int test_cordic();
+int test_top_fir();
+
 int main(void)
 {
+
+	test_cordic();
+
+	return 0;
+}
+
+int test_cordic() {
+
+	int x;
+	int y;
+	float mag;
+	float angle;
+
+	x = 3;
+	y = 4;
+
+	cordic(x, y, &mag, &angle);
+	printf("Cartesian Form: Real Part: %d, Imag Part: %d --> Polar Form: Magnitude: %.3f Angle: %.3f\n", x, y, mag, angle);
+
+	return 0;
+}
+
+int test_top_fir() {
 
 	// 1. Define an array of real and imaginary KERNEL coefficients as specified in lab handout for testing FIR filter.
 	static int kernel_real[KERNEL_SIZE] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25};
