@@ -20,7 +20,7 @@ void complex_mult(int ar, int ai, int br, int bi, int* o_r, int* o_i);
 
 // Function that performs a single step of convolution == a dot product with the kernel
 // and the current values of the input within the sliding window.
-void fir(int input_r, int input_i, int filter_r[FILTER_LENGTH], int filter_i[FILTER_LENGTH], int* output_r, int* output_i);
+void fir(int input_r, int input_i, int filter_r[KERNEL_SIZE], int filter_i[KERNEL_SIZE], int* output_r, int* output_i);
 
 // Prototype for hardware FIR filter. Performs a complex convolution and produces cartesian outputs.
 void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int kernel_img[KERNEL_SIZE], hls::stream<int>&output_real, hls::stream<int>&output_img, int length);

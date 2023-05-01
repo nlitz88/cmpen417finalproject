@@ -18,6 +18,9 @@ void reference_fir(int* data, int* filter);
 
 int main(void)
 {
+
+	// 1. Define an array of real and imaginary KERNEL coefficients as specified in lab handout for testing FIR filter.
+	static const int coef_real[KERN]
 	init();
 
 	// Call reference FIR (convolution) function on initialized data.
@@ -51,6 +54,7 @@ void deinit()
 }
 void init()
 {
+
 	srand(0);
 	initialize_array(&test_filter, FILTER_LENGTH);
 	initialize_array(&hardware_input, DATA_LENGTH);
