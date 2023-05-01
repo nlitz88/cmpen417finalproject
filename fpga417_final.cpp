@@ -246,6 +246,8 @@ void fpga417_fir(int* input_real, int* input_img, int* kernel_real, int* kernel_
 	// Load the kernel values onto FPGA.
 	int filter_real[KERNEL_SIZE];
 	int filter_img[KERNEL_SIZE];
+#pragma HLS array_partition variable=filter_real type=complete
+#pragma HLS array_partition variable=filter_img type=complete
 	// As a further optimization, could also store the kernel coefficients as INP_INTs to take up less space.
 
 	int i;
