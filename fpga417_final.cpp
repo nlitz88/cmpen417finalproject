@@ -16,14 +16,14 @@ void complex_mult(int ar, int ai, int br, int bi, int* o_r, int* o_i) {
 
 // Function that performs a single step of convolution == a dot product with the kernel
 // and the current values of the input within the sliding window.
-void fir(int input_r, int input_i, int filter_r[FILTER_LENGTH], int filter_i[FILTER_LENGTH], int* output_r, int* output_i) {
+void fir(int input_r, int input_i, int filter_r[KERNEL_SIZE], int filter_i[KERNEL_SIZE], int* output_r, int* output_i) {
 
 	// Statically define the
 	// Create a static shift register that we'll push each received input into. Will only be the
 	// length of the filter, though, as that's all we need for the element-wise multiplication.
 	// Might not be able to use this define here to allocate this.
-	static int inputs_r_shiftreg[FILTER_LENGTH] = { [0 ... FILTER_LENGTH - 1] = 0}; 	// THIS HAS TO BE INITIALIZED TO 0!
-	static int inputs_i_shiftreg[FILTER_LENGTH] = { [0 ... FILTER_LENGTH - 1] = 0};		// THIS HAS TO BE INITIALIZED TO 0!
+	static int inputs_r_shiftreg[KERNEL_SIZE] = {0}; 	// THIS HAS TO BE INITIALIZED TO 0!
+	static int inputs_i_shiftreg[KERNEL_SIZE] = {0};		// THIS HAS TO BE INITIALIZED TO 0!
 	// Variables to accumulate each of the products. I.e., stores the sum of products == the dot product.
 	int dot_product_r = 0;
 	int dot_product_i = 0;
@@ -34,7 +34,7 @@ void fir(int input_r, int input_i, int filter_r[FILTER_LENGTH], int filter_i[FIL
 	int i;
 
 	// Loop to compute the dot product. Start from the right side of shift register/filter.
-	for(i = FILTER_LENGTH - 1; i >= 0; i--) {
+	for(i = KERNEL_SIZE - 1; i >= 0; i--) {
 
 		// If on the first multiplication, set the leading element of the shift register to the input.
 		if(i == 0) {
@@ -172,7 +172,7 @@ void cordic(int cos, int sin, float *output_mag, float *output_angle) {
 
 	        // Though the rotation itself is counter-clockwise (which is positive), this rotation would decrease the number of degrees
 	        // we've rotated FROM the coordinates to the x-axis--therefore we subtract the rotation angle here.
-	        theta_rotated = theta_rotatoed - cordic_phase[j];
+	        theta_rotated = theta_rotated - cordic_phase[j];
 	    }
 	}
 
