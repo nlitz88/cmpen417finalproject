@@ -86,7 +86,7 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 	// This means we're not computing a complete convolution--so it's not technically completely correct.
 	// But we're more so interested in doing this just for demonstration.
 	int i;
-	for (i = 0; i < length; i++) {
+	LOOP_FIR_MAIN: for (i = 0; i < length; i++) {
 		// Pass the ith input value into the fir filter (really just taking the dot product).
 		fir(input_real[i], input_img[i], kernel_real, kernel_img, &iteration_r_result, &iteration_i_result);
 		// Use the blocking stream api function "write" to push each value to its respective stream.
@@ -190,26 +190,27 @@ void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img,
 
 	// Need to define interfaces for each input.
 
-	// 1. Need to lookup how to work with the hls::stream type--does it truly behave like a queue, and we'll block until there're values to pull out,
-	// or do we treat it like it's just an array?
+	// Variables to store values popped from the queue that the FIR filter feeds.
+	int temp_result_real = 0;
+	int temp_result_img = 0;
+	float temp_result_mag = 0;		// These variables may not be strictly necessary, if we provide the array address to the cordic function.
+	float temp_result_angle = 0;
 
-	// Ultimately, the underlying implementation should create task-level parallelism--meaning that the as soon as the FIR filter outputs a number
-	// to the output streams, the cordic rotator can pick up that number and convert it to polar form.
+	int i;
+	// Main cordic rotator loop. Read "length" values from the output stream, as FIR filter only outputs length values.
+	LOOP_CORDIC_MAIN: for (i = 0; i < length; i++) {
 
-	// 2. Also, another question: The output of this "top_cordic_rotator" is an array of floats, I guess? (one for magnitude, one for angle).
-	// Having said that, I imagine that array of floats would need to be defined outside of the cordic rotator? AND, by the looks of it,
-	// (based on the prototype anyways), it looks like that array would get defined in the processing system's memory, and then accessed
-	// by our IP block via DMA--as it looks like our top function "fpga417_fir" receives an address from an AXI bus--and then communicates over that
-	// AXI bus to the DMA controller, which accesses the memory hierarchy on our fpga's behalf.
+		// Read the real and imaginary outputs from the respective streams the FIR filter writes to.
+		temp_result_real = input_real.read();
+		temp_result_img = input_img.read();
 
-	// Addressing my first question: we'll just loop "length" times (means no need for an unstable while loop) -- and that will
-	// be the number of times we have to read() from the hls streams.
+		// Call the cordic function to convert the complex number in cartesian form to polar form.
 
-	// Another question/suggestion: In the sample code, they suggest casting the interger real and imaginary parts to FIXED_POINT
-	// in here, and then passing those fixed point variables to the underlying cordic function. Does this really matter? What
-	// makes the most sense?
-	// To me: the FIXED_POINT representation is really only needed WITHIN that underlying cordic_function--therefore why introduce
-	// it in this higher level function? I think it makes sense to just keep it only in that function.
+		// Write the resulting magnitude and angle to their respective output arrays.
+		output_mag[i] = temp_result_mag;
+		output_angle[i] = temp_result_angle;
+
+	}
 
 
 	return;
@@ -224,6 +225,8 @@ void fpga417_fir(int* input_real, int* input_img, int* kernel_real, int* kernel_
 //#pragma HLS INTERFACE m_axi port=input offset=slave // bundle=gmem0
 //#pragma HLS INTERFACE m_axi port=filter offset=slave // bundle=gmem1...
 
+	// Question: Dataflow pragma only needed at this top level, so as to indicate to Vitis that the functions we call
+	// under this pragma are to implement a DATAFLOW.
 #pragma HLS DATAFLOW
 
 	// Load the kernel values onto FPGA.
@@ -243,7 +246,6 @@ void fpga417_fir(int* input_real, int* input_img, int* kernel_real, int* kernel_
 	top_fir(input_real, input_img, filter_real, filter_img, real_stream, img_stream, input_length);
 	// Then call the CORDIC rotator on the cartesian outputs of the FIR filter to convert the output values to polar form.
 	top_cordic_rotator(real_stream, img_stream, output_mag, output_angle, input_length);
-
 
 	return;
 }
