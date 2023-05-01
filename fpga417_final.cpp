@@ -178,9 +178,11 @@ void cordic(int cos, int sin, float *output_mag, float *output_angle) {
 
 	// Now that we've performed the NUM_CORDIC_ITERATIONS rotations, we can come up with our final values.
 
-	// Shouldn't have to do anything to the theta_rotated, as the offset would have already been contributed from the start.
+	// The magnitude is computed as the product of the cordic gain (after NUM_CORDIC_ITERATIONS) times the current_cos value.
+	*output_mag = ((FIXED_POINT)(current_cos*CORDIC_GAIN)).to_float();
 
-	// Now, the magnitude is just going to be equal to the
+	// Shouldn't have to do anything to the theta_rotated, as the offset would have already been contributed from the start.
+	*output_angle = theta_rotated;
 
 
 }
