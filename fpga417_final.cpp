@@ -202,6 +202,15 @@ void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img,
 	// by our IP block via DMA--as it looks like our top function "fpga417_fir" receives an address from an AXI bus--and then communicates over that
 	// AXI bus to the DMA controller, which accesses the memory hierarchy on our fpga's behalf.
 
+	// Addressing my first question: we'll just loop "length" times (means no need for an unstable while loop) -- and that will
+	// be the number of times we have to read() from the hls streams.
+
+	// Another question/suggestion: In the sample code, they suggest casting the interger real and imaginary parts to FIXED_POINT
+	// in here, and then passing those fixed point variables to the underlying cordic function. Does this really matter? What
+	// makes the most sense?
+	// To me: the FIXED_POINT representation is really only needed WITHIN that underlying cordic_function--therefore why introduce
+	// it in this higher level function? I think it makes sense to just keep it only in that function.
+
 
 	return;
 }
