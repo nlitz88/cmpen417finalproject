@@ -5,6 +5,8 @@
 
 // Custom Arbitrary Fixed Point type for use by the CORDIC rotator.
 typedef ap_fixed <32,20> FIXED_POINT; // <12,2> used in example--possible to get down to this level? Probably not that low.
+typedef ap_int <7> INP_INT; // 7 bit integer needed to represent input values and kernel coefficients.
+typedef ap_int <14> OUT_INT; // 14 bit integer needed to represent FIR output values.
 
 // FIR constants.
 #define KERNEL_SIZE 25

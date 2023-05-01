@@ -2,7 +2,7 @@
 #include "fpga417_final.h"
 
 // Create function that performs complex multiplication.
-void complex_mult(int ar, int ai, int br, int bi, int* o_r, int* o_i) {
+void complex_mult(INP_INT ar, INP_INT ai, INP_INT br, INP_INT bi, OUT_INT* o_r, OUT_INT* o_i) {
 
 	// As a hardware instance, we want this to use four DSPs.
 	// Is there anything special we have to do to enable this?
@@ -16,20 +16,20 @@ void complex_mult(int ar, int ai, int br, int bi, int* o_r, int* o_i) {
 
 // Function that performs a single step of convolution == a dot product with the kernel
 // and the current values of the input within the sliding window.
-void fir(int input_r, int input_i, int filter_r[KERNEL_SIZE], int filter_i[KERNEL_SIZE], int* output_r, int* output_i) {
+void fir(INP_INT input_r, INP_INT input_i, int filter_r[KERNEL_SIZE], int filter_i[KERNEL_SIZE], int* output_r, int* output_i) {
 
 	// Statically define the
 	// Create a static shift register that we'll push each received input into. Will only be the
 	// length of the filter, though, as that's all we need for the element-wise multiplication.
 	// Might not be able to use this define here to allocate this.
-	static int inputs_r_shiftreg[KERNEL_SIZE] = {0}; 	// THIS HAS TO BE INITIALIZED TO 0!
-	static int inputs_i_shiftreg[KERNEL_SIZE] = {0};		// THIS HAS TO BE INITIALIZED TO 0!
+	static INP_INT inputs_r_shiftreg[KERNEL_SIZE] = {0}; 	// THIS HAS TO BE INITIALIZED TO 0!
+	static INP_INT inputs_i_shiftreg[KERNEL_SIZE] = {0};		// THIS HAS TO BE INITIALIZED TO 0!
 	// Variables to accumulate each of the products. I.e., stores the sum of products == the dot product.
 	int dot_product_r = 0;
 	int dot_product_i = 0;
 	// Variables to store the real and imaginary result from complex multiplication function.
-	int real_result = 0;
-	int imag_result = 0;
+	OUT_INT real_result = 0;
+	OUT_INT imag_result = 0;
 	// Iterator variable.
 	int i;
 
@@ -52,7 +52,7 @@ void fir(int input_r, int input_i, int filter_r[KERNEL_SIZE], int filter_i[KERNE
 
 		// Regardless of which number we're on, we'll compute the current position's dot product
 		// using the complex multiplier.
-		complex_mult(inputs_r_shiftreg[i], inputs_i_shiftreg[i], filter_r[i], filter_i[i], &real_result, &imag_result);
+		complex_mult(inputs_r_shiftreg[i], inputs_i_shiftreg[i], (INP_INT)filter_r[i], (INP_INT)filter_i[i], &real_result, &imag_result);
 
 		// Add the real result and imaginary result to the real and imaginary dot product, respectively.
 		dot_product_r += real_result;
@@ -87,7 +87,7 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 	LOOP_FIR_MAIN: for (i = 0; i < length; i++) {
 #pragma HLS pipeline off
 		// Pass the ith input value into the fir filter (really just taking the dot product).
-		fir(input_real[i], input_img[i], kernel_real, kernel_img, &iteration_r_result, &iteration_i_result);
+		fir((INP_INT)input_real[i], (INP_INT)input_img[i], kernel_real, kernel_img, &iteration_r_result, &iteration_i_result);
 		// Use the blocking stream api function "write" to push each value to its respective stream.
 		output_real.write(iteration_r_result);
 		output_img.write(iteration_i_result);
@@ -242,6 +242,7 @@ void fpga417_fir(int* input_real, int* input_img, int* kernel_real, int* kernel_
 	// Load the kernel values onto FPGA.
 	int filter_real[KERNEL_SIZE];
 	int filter_img[KERNEL_SIZE];
+	// As a further optimization, could also store the kernel coefficients as INP_INTs to take up less space.
 
 	int i;
 	LOOP_INIT_FILTER: for (i = 0; i < KERNEL_SIZE; i++) {
