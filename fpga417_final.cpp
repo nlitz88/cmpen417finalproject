@@ -205,6 +205,7 @@ void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img,
 		temp_result_img = input_img.read();
 
 		// Call the cordic function to convert the complex number in cartesian form to polar form.
+		cordic(temp_result_real, temp_result_img, &temp_result_mag, &temp_result_angle);
 
 		// Write the resulting magnitude and angle to their respective output arrays.
 		output_mag[i] = temp_result_mag;
