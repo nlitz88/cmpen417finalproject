@@ -36,6 +36,8 @@ void fir(INP_INT input_r, INP_INT input_i, int filter_r[KERNEL_SIZE], int filter
 	// Loop to compute the dot product. Start from the right side of shift register/filter.
 	LOOP_FIR_DP: for(i = KERNEL_SIZE - 1; i >= 0; i--) {
 
+#pragma HLS unroll
+
 		// If on the first multiplication, set the leading element of the shift register to the input.
 		if(i == 0) {
 			inputs_r_shiftreg[0] = input_r;
