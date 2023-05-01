@@ -216,7 +216,6 @@ void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img,
 
 	}
 
-
 	return;
 }
 
