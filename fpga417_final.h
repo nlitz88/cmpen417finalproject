@@ -8,6 +8,7 @@ typedef ap_fixed <32,20> FIXED_POINT; // <12,2> used in example--possible to get
 
 // FIR constants.
 #define KERNEL_SIZE 25
+#define INPUT_LENGTH 25
 
 // CORDIC constants.
 const int NUM_CORDIC_ITERATIONS=32;
