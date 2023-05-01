@@ -182,8 +182,9 @@ void cordic(int cos, int sin, float *output_mag, float *output_angle) {
 	*output_mag = ((FIXED_POINT)(current_cos*CORDIC_GAIN)).to_float();
 
 	// Shouldn't have to do anything to the theta_rotated, as the offset would have already been contributed from the start.
-	*output_angle = theta_rotated;
+	*output_angle = theta_rotated.to_float();
 
+	return;
 
 }
 
