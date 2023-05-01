@@ -36,8 +36,6 @@ void fir(INP_INT input_r, INP_INT input_i, int filter_r[KERNEL_SIZE], int filter
 	// Loop to compute the dot product. Start from the right side of shift register/filter.
 	LOOP_FIR_DP: for(i = KERNEL_SIZE - 1; i >= 0; i--) {
 
-//#pragma HLS unroll
-
 		// If on the first multiplication, set the leading element of the shift register to the input.
 		if(i == 0) {
 			inputs_r_shiftreg[0] = input_r;
@@ -77,10 +75,6 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 	// Additionally, going to experiment with not yet storing the input values locally. Not sure if that's a better or worse
 	// idea.
 
-	// Create a variable to store the output at each sliding window position-->ultimately written to the output stream.
-	int iteration_r_result;
-	int iteration_i_result;
-
 	// Perform (partial) convolution with input data and filter coefficients. Write the output of each
 	// convolution step (dot product) to the input that was just fed in to produce that next output!
 	// This means we're not computing a complete convolution--so it's not technically completely correct.
@@ -88,7 +82,11 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 	int i;
 	LOOP_FIR_MAIN: for (i = 0; i < length; i++) {
 #pragma HLS loop_tripcount min=INPUT_LENGTH max=INPUT_LENGTH
-//#pragma HLS pipeline off
+//#pragma HLS unroll factor=4 // Also try a factor of 2 to see if we have enough bandwidth for that.
+
+		// Create a variable to store the output at each sliding window position-->ultimately written to the output stream.
+		int iteration_r_result;
+		int iteration_i_result;
 		// Pass the ith input value into the fir filter (really just taking the dot product).
 		fir((INP_INT)input_real[i], (INP_INT)input_img[i], kernel_real, kernel_img, &iteration_r_result, &iteration_i_result);
 		// Use the blocking stream api function "write" to push each value to its respective stream.
