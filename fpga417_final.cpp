@@ -36,7 +36,7 @@ void fir(INP_INT input_r, INP_INT input_i, int filter_r[KERNEL_SIZE], int filter
 	// Loop to compute the dot product. Start from the right side of shift register/filter.
 	LOOP_FIR_DP: for(i = KERNEL_SIZE - 1; i >= 0; i--) {
 
-#pragma HLS unroll
+//#pragma HLS unroll
 
 		// If on the first multiplication, set the leading element of the shift register to the input.
 		if(i == 0) {
@@ -87,7 +87,8 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 	// But we're more so interested in doing this just for demonstration.
 	int i;
 	LOOP_FIR_MAIN: for (i = 0; i < length; i++) {
-#pragma HLS pipeline off
+#pragma HLS loop_tripcount min=INPUT_LENGTH max=INPUT_LENGTH
+//#pragma HLS pipeline off
 		// Pass the ith input value into the fir filter (really just taking the dot product).
 		fir((INP_INT)input_real[i], (INP_INT)input_img[i], kernel_real, kernel_img, &iteration_r_result, &iteration_i_result);
 		// Use the blocking stream api function "write" to push each value to its respective stream.
@@ -201,6 +202,7 @@ void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img,
 	int i;
 	// Main cordic rotator loop. Read "length" values from the output stream, as FIR filter only outputs length values.
 	LOOP_CORDIC_MAIN: for (i = 0; i < length; i++) {
+#pragma HLS loop_tripcount min=INPUT_LENGTH max=INPUT_LENGTH
 
 		// Read the real and imaginary outputs from the respective streams the FIR filter writes to.
 		temp_result_real = input_real.read();
