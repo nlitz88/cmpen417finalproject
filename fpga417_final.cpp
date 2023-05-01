@@ -85,6 +85,7 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 	// But we're more so interested in doing this just for demonstration.
 	int i;
 	LOOP_FIR_MAIN: for (i = 0; i < length; i++) {
+#pragma HLS pipeline off
 		// Pass the ith input value into the fir filter (really just taking the dot product).
 		fir(input_real[i], input_img[i], kernel_real, kernel_img, &iteration_r_result, &iteration_i_result);
 		// Use the blocking stream api function "write" to push each value to its respective stream.
