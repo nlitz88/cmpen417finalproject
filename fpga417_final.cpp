@@ -71,8 +71,6 @@ void fir(int input_r, int input_i, int filter_r[KERNEL_SIZE], int filter_i[KERNE
 // of the results and one contains the imaginary.
 void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int kernel_img[KERNEL_SIZE], hls::stream<int>&output_real, hls::stream<int>&output_img, int length) {
 
-	// Need to define interface for each port.
-
 	// No need to store the kernel values locally, as they are already instantiated as a block ram on the FPGA within the fpga417_fir module.
 	// Additionally, going to experiment with not yet storing the input values locally. Not sure if that's a better or worse
 	// idea.
@@ -191,8 +189,6 @@ void cordic(int cos, int sin, float *output_mag, float *output_angle) {
 // Prototype for CORDIC rotator used to convert cartesian outputs of top_fir to polar form.
 void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img, float* output_mag, float* output_angle, int length) {
 
-	// Need to define interfaces for each input.
-
 	// Variables to store values popped from the queue that the FIR filter feeds.
 	int temp_result_real = 0;
 	int temp_result_img = 0;
@@ -224,12 +220,17 @@ void top_cordic_rotator(hls::stream<int>&input_real, hls::stream<int>&input_img,
 // result values in polar form. Does this by connecting top_fir and top_cordic_rotator.
 void fpga417_fir(int* input_real, int* input_img, int* kernel_real, int* kernel_img, float* output_mag, float* output_angle, int input_length) {
 
-//#pragma HLS INTERFACE s_axilite port=return
-//#pragma HLS INTERFACE m_axi port=input offset=slave // bundle=gmem0
-//#pragma HLS INTERFACE m_axi port=filter offset=slave // bundle=gmem1...
+#pragma HLS INTERFACE s_axilite port=return
+#pragma HLS INTERFACE port=input_real mode=m_axi
+#pragma HLS INTERFACE port=input_img mode=m_axi
+#pragma HLS INTERFACE port=kernel_real mode=m_axi
+#pragma HLS INTERFACE port=kernel_img mode=m_axi
+#pragma HLS INTERFACE port=output_mag mode=m_axi
+#pragma HLS INTERFACE port=output_angle mode=m_axi
+#pragma HLS INTERFACE port=input_length mode=m_axi
 
 	// Question: Dataflow pragma only needed at this top level, so as to indicate to Vitis that the functions we call
-	// under this pragma are to implement a DATAFLOW.
+	// under this pragma are to implement a DATAFLOW via hls::streams present between the functions.
 #pragma HLS DATAFLOW
 
 	// Load the kernel values onto FPGA.
