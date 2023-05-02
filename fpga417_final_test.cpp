@@ -24,6 +24,16 @@ int test_top() {
 	int input_real[INPUT_LENGTH] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 	int input_img[INPUT_LENGTH] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
+	for (int i = 0; i < KERNEL_SIZE; i++) {
+		kernel_real[i] = 5;
+		kernel_img[i] = -5;
+	}
+
+	for (int i = 0; i < INPUT_LENGTH; i++) {
+		input_real[i] = 50;
+		input_img[i] = 20;
+	}
+
 	// 3. Define float output arrays.
 	float output_mag[INPUT_LENGTH];
 	float output_angle[INPUT_LENGTH];

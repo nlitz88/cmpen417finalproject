@@ -92,6 +92,8 @@ void top_fir(int* input_real, int* input_img, int kernel_real[KERNEL_SIZE], int 
 		// Use the blocking stream api function "write" to push each value to its respective stream.
 		output_real.write(iteration_r_result);
 		output_img.write(iteration_i_result);
+
+		printf("Iteration %d: Real: %d, Imag: %d\n", i, iteration_r_result, iteration_i_result);
 	}
 
 	return;
@@ -182,6 +184,7 @@ void cordic(int cos, int sin, float *output_mag, float *output_angle) {
 	*output_mag = ((FIXED_POINT)(current_cos*CORDIC_GAIN)).to_float();
 
 	// Shouldn't have to do anything to the theta_rotated, as the offset would have already been contributed from the start.
+	theta_rotated = theta_rotated + angle_offset;
 	*output_angle = theta_rotated.to_float();
 
 	return;

@@ -7,4 +7,7 @@
 !fpga417_final_test.cpp
 !README.md
 !*/cordic_example
-!finalproject_xilinx_vitis_workspace/finalproject/src/helloworld.c
+!*/finalproject_xilinx_vitis_workspace
+!*/finalproject_xilinx_vitis_workspace/finalproject/
+!*/finalproject_xilinx_vitis_workspace/finalproject/src/
+!*/finalproject_xilinx_vitis_workspace/finalproject/src/helloworld.c
